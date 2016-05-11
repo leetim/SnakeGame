@@ -1,28 +1,22 @@
 #include <iostream>
-#include <unistd.h>
+#include <time.h>
 #include <game.h>
+#include <stdlib.h>
+#include <ncurses.h>
 
 using namespace std;
 
 
 int main(){
+	srand(time(0));
 	initscr();
-	int i = 0;
-	halfdelay(10);
+	halfdelay(1);
 	noecho();
-	int k;
-	while (true){
-		k = getch();
-		if (k == 'q'){
-			break;
-		}
-		clear();
-		i++;
-		move(5, 5);
-		printw("%d", i);
-		// usleep(100000);
-	}
+
+	addch('K');
+	myGame::Game game;
+	game.loop();
+	
 	endwin();
-	// cout << k << endl;
 	return 0;
 }

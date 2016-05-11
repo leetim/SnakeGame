@@ -12,6 +12,9 @@ include_directories(./include)
 
 set(MAIN_SOURCE src/main.cpp)
 set(GAME_SOURCE src/game.cpp)
+set(SNAKE_SOURCE src/snake.cpp)
+set(OBJECT_SOURCE src/object.cpp)
+set(POINT_SOURCE src/Point.cpp)
 
-add_executable(main ${MAIN_SOURCE} ${GAME_SOURCE})
+add_executable(main ${MAIN_SOURCE} ${GAME_SOURCE} ${SNAKE_SOURCE} ${OBJECT_SOURCE} ${POINT_SOURCE})
 target_link_libraries(main ncurses)

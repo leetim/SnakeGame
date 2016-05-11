@@ -1,31 +1,34 @@
 #pragma once
-#include <ncurses.h>
+#include <snake.h>
+#include <object.h>
+#include <unistd.h>
 
-struct Point{
-	typedef Point& reference;
-	Point(): x(), y(){};
-	Point(int _x, int _y): x(_x), y(_y){};
-	static Point randomPoint(int max_x, int max_y);
-	static const Point dir_top;
-	static const Point dir_right;
-	static const Point dir_bottom;
-	static const Point dir_left;
+namespace myGame{
 
-	friend Point operator+(const Point& left, const Point& right);
-	friend bool operator==(const Point& left, const Point& right);
-	friend bool operator!=(const Point& left, const Point& right);
+	class finishGame{
+	public:
+		finishGame(){};
+		bool operator()(){
+			return true;
+		};
+	};
 
-	int x;
-	int y;
-};
+	class Game{
+	public:
+		Game();
+		~Game();
+		void loop();
+	private:
+		int wait_key();
+		void redraw();
+		PObject getFood();
+		void makeFood();
 
-class Game{
-public:
-	Game();
-	int wait_key();
-	void redraw();
-	void loop();
-	~Game();
-private:
-	char** map;
-};
+		Snake snake;
+		PObject food;
+		char** map;
+		char** map2;
+		int turn;
+	};
+
+}
