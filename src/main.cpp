@@ -10,13 +10,22 @@ using namespace std;
 int main(){
 	srand(time(0));
 	initscr();
-	halfdelay(1);
 	noecho();
+	int k = 0;
 
-	addch('K');
-	myGame::Game game;
-	game.loop();
-	
+	while (k != 'q'){
+		halfdelay(1);
+		myGame::Game game(15, 15);
+		int points = game.loop();
+		move(6, 6);
+		printw("You have %d points", points);		
+		// halfdelay(-1);
+		k = ERR;
+		while (k == ERR){
+			k = getch();			
+		}
+	}
+
 	endwin();
 	return 0;
 }

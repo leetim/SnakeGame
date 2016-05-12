@@ -15,20 +15,22 @@ namespace myGame{
 
 	class Game{
 	public:
-		Game();
+		Game(int height, int weight);
 		~Game();
-		void loop();
+		int loop();
 	private:
 		int wait_key();
 		void redraw();
 		PObject getFood();
-		void makeFood();
+		bool makeFood();
 
 		Snake snake;
 		PObject food;
 		char** map;
 		char** map2;
-		int turn;
+		int points;
+		int H;
+		int W;
 	};
 
 }

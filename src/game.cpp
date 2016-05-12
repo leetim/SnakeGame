@@ -2,8 +2,6 @@
 #include <string>
 #include <ncurses.h>
 
-#define W 30
-#define H 30
 
 using namespace myGame;
 
@@ -14,10 +12,12 @@ using namespace myGame;
 //Functions
 
 char** getMap(int length, int height){
+	length += 1;
 	char** temp = new char*[height];
 	char* temp2 = new char[height * length];
 	for (int i = 0; i < height; i++){
 		temp[i] = &temp2[length * i];
+		temp2[length * i - 1] = '\0';
 	}
 	return temp;
 }
@@ -31,9 +31,9 @@ PObject Game::getFood(){
 	int k = 0;
 	int f = 0;
 	while (k < 100){
-		Point t = Point::randomPoint(H, W);
+		Point t = Point::randomPoint(W, H);
 		if (t.x != 0 && t.y != 0 && t.x != H - 1 && t.y != W - 1){
-			for (int i = 0; i < snake.count(); i++){
+			for (unsigned int i = 0; i < snake.count(); i++){
 				if (snake[i]->get_position() == t){
 					f = 1;
 					break;	
@@ -51,15 +51,18 @@ PObject Game::getFood(){
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Game
 
-Game::Game(){
+Game::Game(int height, int weight){
+	W = weight;
+	H = height;
 	snake = Snake(Point(10, 5), Point::dir_left);
 	map = getMap(W, H);
 	map2 = getMap(W, H);
 	food = getFood();
+	points = 0;
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
-			map[j][i] = ((i == 0 || j == 0 || i == H - 1 || j == W - 1) ? '#' : '.');
-			map2[j][i] = map[j][i];
+			map[i][j] = ((i == 0 || j == 0 || i == H - 1 || j == W - 1) ? '#' : '.');
+			map2[i][j] = map[i][j];
 		}
 	}
 }
@@ -68,7 +71,6 @@ Game::~Game(){
 	deleteMap(map);
 	deleteMap(map2);
 	Object::clear_all();
-
 }
 
 int Game::wait_key(){
@@ -98,33 +100,40 @@ int Game::wait_key(){
 
 void Game::redraw(){
 	clear();
+	move(1, 1);
+	printw("Your points: %d", points);
 	for (unsigned int i = 0; i < snake.count(); i++){
 		Point t = snake[i]->get_position();
 		map[t.y][t.x] = snake[i]->get_char();	
 	}
 	for (int i = 0; i < H; i++){
+		move(i + 3, 3);
+		printw("%s", map[i]);
 		for (int j = 0; j < W; j++){
-			move(j + 3, i + 3);
-			addch(map[j][i]);
-			map[j][i] = map2[j][i];
+			// addch(map[j][i]);
+			map[i][j] = map2[i][j];
 		}
 	}
 	refresh();
 }
 
 
-void Game::makeFood(){
+bool Game::makeFood(){
 	if (food == NULL || !food->is_on_map()){
 		food = getFood();
+		return true;
 	}
+	return false;
 }
 
-void Game::loop(){
+int Game::loop(){
 	try{
 		while (true){
 			wait_key();
 			snake.move();
-			makeFood();
+			if (makeFood()){
+				points++;
+			}
 			Object::clear_dead();
 			if (!snake.is_alive()){
 				throw finishGame();
@@ -136,17 +145,16 @@ void Game::loop(){
 				}
 			}
 			redraw();
-			usleep(100000);
-			// turn++;
+			usleep(50000);
 		}
 	}
 	catch(finishGame e){
 		if (e()){
-			return;
+			clear();
+			return points;
 		}
 		else{
-			loop();
+			return loop();
 		}
 	}
 }
-
