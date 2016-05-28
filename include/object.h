@@ -41,8 +41,8 @@ public:
 	static void clear_all();
 
 
-protected: 	
 	static std::vector<PObject> obj;
+protected:
 	bool on_map;
 	Point position;
 	char ch;

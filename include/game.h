@@ -2,6 +2,7 @@
 #include <snake.h>
 #include <object.h>
 #include <unistd.h>
+#include <vector>
 
 namespace myGame{
 
@@ -22,15 +23,13 @@ namespace myGame{
 		int wait_key();
 		void redraw();
 		PObject getFood();
-		bool makeFood();
 
 		Snake snake;
-		PObject food;
 		char** map;
-		char** map2;
 		int points;
 		int H;
 		int W;
+		Point lr_window;
 	};
 
 }

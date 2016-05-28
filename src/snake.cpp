@@ -20,7 +20,6 @@ void Snake::move(){
 	for (vector<PObject>::reverse_iterator i = body.rbegin(); i != body.rend(); i++){
 		(*i)->move();
 	}
-	// tail->move();
 }
 
 bool Snake::is_alive(){
@@ -46,4 +45,9 @@ Point Snake::head_coord(){
 
 Point Snake::head_dir(){
 	return head->direction;
+}
+
+
+int Snake::get_points(){
+	return body.size() - 1;
 }

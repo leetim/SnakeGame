@@ -12,17 +12,17 @@ int main(){
 	initscr();
 	noecho();
 	int k = 0;
-
+	int y = getmaxy(stdscr) - 4;
+	int x = getmaxx(stdscr) - 6;
 	while (k != 'q'){
 		halfdelay(1);
-		myGame::Game game(30, 40);
+		myGame::Game game(y, x);
 		int points = game.loop();
 		move(6, 6);
-		printw("You have %d points", points);		
-		// halfdelay(-1);
+		printw("You have %d points", points);
 		k = ERR;
 		while (k == ERR){
-			k = getch();			
+			k = getch();
 		}
 	}
 

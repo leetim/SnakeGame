@@ -4,6 +4,7 @@
 
 
 using namespace myGame;
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //exception
@@ -33,22 +34,22 @@ void deleteMap(char** ptr){
 Game::Game(int height, int weight){
 	W = weight;
 	H = height;
-	snake = Snake(Point(10, 5), Point::dir_left);
+	snake = Snake(Point(0, 0), Point::dir_left);
 	map = getMap(W, H);
-	map2 = getMap(W, H);
-	food = getFood();
+	for (int i = 0; i < 3000; i++){
+		getFood();
+	}
 	points = 0;
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
-			map[i][j] = ((i == 0 || j == 0 || i == H - 1 || j == W - 1) ? CHR_WALL : CHR_NOTHING);
-			map2[i][j] = map[i][j];
+			map[i][j] = CHR_NOTHING;
+			// map2[i][j] = map[i][j];
 		}
 	}
 }
 
 Game::~Game(){
 	deleteMap(map);
-	deleteMap(map2);
 	Object::clear_all();
 }
 
@@ -59,13 +60,13 @@ int Game::wait_key(){
 		case 'w':
 			new_dir = Point::dir_top;
 			break;
-		case 'd': 
+		case 'd':
 			new_dir = Point::dir_right;
 			break;
 		case 's':
 			new_dir = Point::dir_bottom;
 			break;
-		case 'a': 
+		case 'a':
 			new_dir = Point::dir_left;
 			break;
 		default:
@@ -81,77 +82,72 @@ PObject Game::getFood(){
 	int k = 0;
 	int f = 0;
 	while (k < 100){
-		Point t = Point::randomPoint(W, H);
-		if (t.x != 0 && t.y != 0 && t.x != W - 1 && t.y != H - 1){
-			for (unsigned int i = 0; i < snake.count(); i++){
-				if (snake[i]->get_position() == t){
-					f = 1;
-					break;	
-				}
+		Point t = Point::randomPoint(100, 100);
+		for (unsigned int i = 0; i < Object::obj.size(); i++){
+			if (Object::obj[i]->get_position() == t){
+				f = 1;
+				break;
 			}
-			if (!f){
-				return new Food(t);
-			}
-			f = 0;
 		}
+		if (!f){
+			return new Food(t);
+		}
+		f = 0;
 	}
 	return NULL;
+}
+
+void write_chr(Point p, char ch){
+		move(p.y, p.x);
+		addch(ch);
 }
 
 void Game::redraw(){
 	clear();
 	move(1, 1);
-	printw("Your points: %d", points);
-	for (unsigned int i = 0; i < snake.count(); i++){
-		Point t = snake[i]->get_position();
-		map[t.y][t.x] = snake[i]->get_char();	
+	Point s = snake.head_coord();
+	printw("Your points: %d (%d, %d)", snake.get_points(), s.x, s.y);
+	for (int i = 0; i < H; i++){
+		for (int j = 0; j < W; j++){
+			map[i][j] = CHR_NOTHING;
+		}
+	}
+	Point mid = Point(W/2, H/2);
+	Point window_coord = s - mid;
+	Point zero = Point(0, 0);
+	Point rb = Point(W, H);
+	for (vector<PObject>::iterator i = Object::obj.begin(); i != Object::obj.end(); i++){
+		Point t = (*i)->get_position() - window_coord;
+		if (zero < t && t < rb){
+			map[t.y][t.x] = (*i)->get_char();
+		}
+
 	}
 	for (int i = 0; i < H; i++){
 		move(i + 3, 3);
 		printw("%s", map[i]);
-		for (int j = 0; j < W; j++){
-			// addch(map[j][i]);
-			map[i][j] = map2[i][j];
-		}
 	}
 	refresh();
-}
-
-
-bool Game::makeFood(){
-	if (food == NULL || !food->is_on_map()){
-		food = getFood();
-		return true;
-	}
-	return false;
 }
 
 int Game::loop(){
 	try{
 		while (true){
 			wait_key();
+			getFood();
 			snake.move();
-			if (makeFood()){
-				points++;
-			}
 			Object::clear_dead();
 			if (!snake.is_alive()){
 				throw finishGame();
 			}
-			else{
-				Point t = snake.head_coord();
-				if (map2[t.y][t.x] == '#'){
-					throw finishGame();
-				}
-			}
 			redraw();
-			usleep(50000);
+			usleep(10000);
 		}
 	}
 	catch(finishGame e){
 		if (e()){
 			clear();
-			return points;
+			return snake.get_points();
 		}
 		else{
 			return loop();

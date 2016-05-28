@@ -106,7 +106,6 @@ Body::Body(const Point& p, PObject n){
 
 void Body::move(){
 	position = next->get_position();
-	// next->move();
 }
 
 void Body::colide(PObject o){

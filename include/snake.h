@@ -13,6 +13,7 @@ public:
 	unsigned int count();
 	Point head_coord();
 	Point head_dir();
+	int get_points();
 private:
 	Head* head;
 	PObject tail;
