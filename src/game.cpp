@@ -17,7 +17,7 @@ char** getMap(int length, int height){
 	char* temp2 = new char[height * length];
 	for (int i = 0; i < height; i++){
 		temp[i] = &temp2[length * i];
-		temp2[length * i - 1] = '\0';
+		temp2[length * (i + 1) - 1] = '\0';
 	}
 	return temp;
 }
@@ -25,27 +25,6 @@ char** getMap(int length, int height){
 void deleteMap(char** ptr){
 	delete[] ptr[0];
 	delete[] ptr;
-}
-
-PObject Game::getFood(){
-	int k = 0;
-	int f = 0;
-	while (k < 100){
-		Point t = Point::randomPoint(W, H);
-		if (t.x != 0 && t.y != 0 && t.x != H - 1 && t.y != W - 1){
-			for (unsigned int i = 0; i < snake.count(); i++){
-				if (snake[i]->get_position() == t){
-					f = 1;
-					break;	
-				}
-			}
-			if (!f){
-				return new Food(t);
-			}
-			f = 0;
-		}
-	}
-	return NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +40,7 @@ Game::Game(int height, int weight){
 	points = 0;
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
-			map[i][j] = ((i == 0 || j == 0 || i == H - 1 || j == W - 1) ? '#' : '.');
+			map[i][j] = ((i == 0 || j == 0 || i == H - 1 || j == W - 1) ? CHR_WALL : CHR_NOTHING);
 			map2[i][j] = map[i][j];
 		}
 	}
@@ -96,6 +75,27 @@ int Game::wait_key(){
 		snake.add_new_dir(new_dir);
 	}
 	return k;
+}
+
+PObject Game::getFood(){
+	int k = 0;
+	int f = 0;
+	while (k < 100){
+		Point t = Point::randomPoint(W, H);
+		if (t.x != 0 && t.y != 0 && t.x != W - 1 && t.y != H - 1){
+			for (unsigned int i = 0; i < snake.count(); i++){
+				if (snake[i]->get_position() == t){
+					f = 1;
+					break;	
+				}
+			}
+			if (!f){
+				return new Food(t);
+			}
+			f = 0;
+		}
+	}
+	return NULL;
 }
 
 void Game::redraw(){

@@ -5,6 +5,8 @@
 #define CHR_HEAD '&'
 #define CHR_BODY 'O'
 #define CHR_FOOD '%'
+#define CHR_WALL '#'
+#define CHR_NOTHING '.'
 
 class Object;
 

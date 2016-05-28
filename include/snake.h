@@ -1,5 +1,6 @@
 #pragma once
 #include <object.h>
+#include <vector>
 
 class Snake{
 public:
@@ -15,6 +16,7 @@ public:
 private:
 	Head* head;
 	PObject tail;
+	std::vector<PObject> body;
 	bool alive;
 	unsigned int points;
 };

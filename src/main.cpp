@@ -15,7 +15,7 @@ int main(){
 
 	while (k != 'q'){
 		halfdelay(1);
-		myGame::Game game(15, 15);
+		myGame::Game game(30, 40);
 		int points = game.loop();
 		move(6, 6);
 		printw("You have %d points", points);		

@@ -1,10 +1,12 @@
 #include <snake.h>
 
+using namespace std;
 
 Snake::Snake(const Point& p, const Point& dir){
 	alive = true;
 	head = new Head(p, dir);
 	tail = head;
+	body.push_back(head);
 }
 
 void Snake::move(){
@@ -12,9 +14,13 @@ void Snake::move(){
 		points++;
 		PObject temp = new Body(Point(), tail);
 		tail = temp;
+		body.push_back(tail);
 		head->give_tail(false);
 	}
-	tail->move();
+	for (vector<PObject>::reverse_iterator i = body.rbegin(); i != body.rend(); i++){
+		(*i)->move();
+	}
+	// tail->move();
 }
 
 bool Snake::is_alive(){
