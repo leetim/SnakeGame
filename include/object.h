@@ -23,6 +23,7 @@ public:
 	friend void colide_all(PObject actor, const Point& target);
 	// static const std::vector<PObject>& objects;
 	virtual void move()=0;
+	virtual void move_back()=0;
 	virtual void colide(PObject)=0;
 	virtual void colide(Food*)=0;
 	virtual void colide(Body*)=0;
@@ -53,6 +54,7 @@ public:
 	Food(){};
 	Food(const Point& p);
 	void move(){};
+	void move_back(){};
 	void colide(PObject);
 	void colide(Food*){};
 	void colide(Body*){};
@@ -64,6 +66,7 @@ public:
 	Head(){};
 	Head(const Point& p, const Point& direction);
 	void move();
+	void move_back();
 	void colide(PObject);
 	void colide(Food*){};
 	void colide(Body*);
@@ -81,6 +84,7 @@ public:
 	Body(){};
 	Body(const Point& p, PObject n);
 	void move();
+	void move_back();
 	void colide(PObject);
 	void colide(Food*){};
 	void colide(Body*){};

@@ -9,11 +9,11 @@ Snake::Snake(const Point& p, const Point& dir){
 	body.push_back(head);
 }
 
-Snake::Snake(const vector<Point>& points, Point dir){
+Snake::Snake(vector<Point>&& p, Point dir){
 	alive = true;
-	head = new Head(points.front(), dir);
+	head = new Head(p.front(), dir);
 	body.push_back(head);
-	for (vector<Point>::iterator i = points.begin()+1; i != points.end(); i++){
+	for (vector<Point>::iterator i = p.begin()+1; i != p.end(); i++){
 		body.push_back(new Body(*i, body.back()));
 	}
 	tail = body.back();

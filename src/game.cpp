@@ -58,7 +58,7 @@ void deleteMap(char** ptr){
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Game
 
-Game::Game(int height, int widht){
+Game::Game(int height, int width){
 	make_map(height, width);
 	snake.push_back(new Snake(Point::randomPoint(150, 150), Point::dir_left));
 	mySnake = snake.back();

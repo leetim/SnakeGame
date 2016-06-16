@@ -77,6 +77,12 @@ void Head::move(){
 	position = temp;
 }
 
+void Head::move_back(){
+	Point temp = position + direction;
+	colide_all(this, temp);
+	position = temp;
+}
+
 void Head::colide(PObject o){
 	o->colide(this);
 }
@@ -105,6 +111,10 @@ Body::Body(const Point& p, PObject n){
 }
 
 void Body::move(){
+	position = next->get_position();
+}
+
+void Body::move_back(){
 	position = next->get_position();
 }
 

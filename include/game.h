@@ -18,6 +18,7 @@ namespace myGame{
 
 	class Game{
 	public:
+		Game(){};
 		Game(int height, int widht);
 		virtual ~Game();
 		virtual int loop();

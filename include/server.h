@@ -5,9 +5,14 @@
 #include <asio.hpp>
 #include <mutex>
 #include <game.h>
+#include <chrono>
 
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+using MS = std::chrono::milliseconds;
 
 std::mutex out_lock;
+// typedef unsigned long long ullong;
 
 struct Messege{
     Messege(): number(), text(){};
@@ -29,8 +34,10 @@ public:
     static void accept_all();
     static void sender(PTalker t);
     static void reader(PTalker t);
+
     static std::vector<Messege> messeges;
     static endpoint ep;
+    static asio::io_service service;
 
 private:
     Talker(): m_socket(service), last_messege(), ready(false),
@@ -41,7 +48,6 @@ private:
 
     ~Talker();
 
-    static asio::io_service service;
     static std::vector<PTalker> talkers;
     static long long max_number;
     static std::mutex talkers_lock;
@@ -54,35 +60,61 @@ private:
     std::thread read_thread;
 };
 
-class Client: public Game{
-public:
-    typedef unsigned long long ulong;
-    Client();
-    virtual ~Client();
-    virtual void make_step();
-    virtual void back_to_step(ulong number);
-    virtual void go_to_step(ulong number);
-    virtual ulong get_current_step();
-    virtual void loop();
-protected:
+namespace myGame{
 
-private:
-    void read_snake();
-    Talker::socket m_socket;
-}
+    class Client: public Game{
+    public:
 
-class Server: public Client{
-public:
-    typedef unsigned long long ulong;
-    Server(int height, int width);
-    virtual ~Server();
-    virtual void make_step();
-    virtual void back_to_step(ulong number);
-    virtual void go_to_step(ulong number);
-    virtual ulong get_current_step();
-    virtual void loop();
-protected:
+        Client(int height, int width);
+        // virtual ~Client();
+        virtual void make_step();
+        virtual void back_to_step(ullong number);
+        virtual void go_to_step(ullong number);
+        virtual ullong get_current_step();
+        virtual int loop();
 
-private:
+        static void reader(Client* c);
+        static void writer(Client* c);
 
+        static int OKEY;
+        static int SNAKE_GAME;
+        static int GET_SNAKES;
+        static int GET_FOOD;
+        static int GET_MY_SNAKE_NUMBER;
+        static int END_MESSEGE;
+        static int NEXT;
+        static int START_CHANGES;
+        static int NEW_FOOD;
+        static int NEW_CLIENT;
+        static int CLEAR_DEAD;
+        static int CHANGE_DIR;
+        static int GET_CURRENT_TIME;
+    protected:
+        TimePoint next_ping;
+        TimePoint delta;
+        MS tick_length;
+        std::mutex ping_lock;
+        std::mutex object_lock;
+
+    private:
+        void read_snake();
+        void read_food();
+        void read_dir();
+        Talker::socket m_socket;
+    };
+
+    class Server: public Client{
+    public:
+        Server(int height, int width);
+        virtual ~Server();
+        virtual void make_step();
+        virtual void back_to_step(ullong number);
+        virtual void go_to_step(ullong number);
+        virtual ullong get_current_step();
+        virtual int loop();
+    protected:
+
+    private:
+
+    };
 }

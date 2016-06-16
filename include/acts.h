@@ -6,6 +6,7 @@
 #define BOTTOM_CODE 3
 
 typedef unsigned long long ullong;
+typedef unsigned int u_int;
 namespace myGame{
     class Game;
 }

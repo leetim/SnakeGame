@@ -23,6 +23,8 @@ set(GAME_SOURCE src/game.cpp)
 set(SNAKE_SOURCE src/snake.cpp)
 set(OBJECT_SOURCE src/object.cpp)
 set(POINT_SOURCE src/Point.cpp)
+set(SERVER_SOURCE src/server.cpp)
 
-add_executable(main ${MAIN_SOURCE} ${GAME_SOURCE} ${SNAKE_SOURCE} ${OBJECT_SOURCE} ${POINT_SOURCE})
+add_executable(main ${MAIN_SOURCE} ${GAME_SOURCE} ${SNAKE_SOURCE} ${OBJECT_SOURCE}
+${POINT_SOURCE} ${SERVER_SOURCE})
 target_link_libraries(main ncurses ${USED_LIBS})
