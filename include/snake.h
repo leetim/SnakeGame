@@ -5,6 +5,9 @@
 class Snake{
 public:
 	Snake(){};
+	Snake(const Snake& other): head(other.head), tail(other.tail),
+	body(other.body), alive(other.alive), points(other.points){};
+	Snake(const std::vector<Point>& points, Point dir);
 	Snake(const Point& p, const Point& dir);
 	void move();
 	bool is_alive();

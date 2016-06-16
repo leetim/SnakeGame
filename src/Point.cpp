@@ -32,6 +32,21 @@ Point Point::randomPoint(int max_x, int max_y){
 	return Point(x, y);
 }
 
+Point Point::dirByCode(int code){
+	switch(code){
+	case 0:
+		return dir_left;
+	case 1:
+		return dir_top;
+	case 2:
+		return dir_right;
+	case 3:
+		return dir_bottom;
+	default:
+		return Point();
+	}
+}
+
 Point& Point::operator=(const Point& other){
 	x = other.x;
 	y = other.y;

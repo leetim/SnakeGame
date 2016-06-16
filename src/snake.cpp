@@ -9,6 +9,17 @@ Snake::Snake(const Point& p, const Point& dir){
 	body.push_back(head);
 }
 
+Snake::Snake(const vector<Point>& points, Point dir){
+	alive = true;
+	head = new Head(points.front(), dir);
+	body.push_back(head);
+	for (vector<Point>::iterator i = points.begin()+1; i != points.end(); i++){
+		body.push_back(new Body(*i, body.back()));
+	}
+	tail = body.back();
+	points = body.size() - 1;
+}
+
 void Snake::move(){
 	if (head->want_tail()){
 		points++;

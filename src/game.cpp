@@ -1,10 +1,37 @@
 #include <game.h>
 #include <string>
-#include <ncurses.h>
 
 
 using namespace myGame;
 using namespace std;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//Acts
+
+void ChangeDir::undo_act(Game* other){
+	other->undo_act(this);
+}
+
+void ChangeDir::do_act(Game* other){
+	other->do_act(this);
+}
+
+void NewSnake::undo_act(Game* other){
+	other->undo_act(this);
+}
+
+void NewSnake::do_act(Game* other){
+	other->do_act(this);
+}
+
+void NewFood::undo_act(Game* other){
+	other->undo_act(this);
+}
+
+void NewFood::do_act(Game* other){
+	other->do_act(this);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //exception
@@ -31,26 +58,51 @@ void deleteMap(char** ptr){
 //////////////////////////////////////////////////////////////////////////////////////////////
 //Game
 
-Game::Game(int height, int weight){
-	W = weight;
-	H = height;
-	snake = Snake(Point(0, 0), Point::dir_left);
-	map = getMap(W, H);
+Game::Game(int height, int widht){
+	make_map(height, width);
+	snake.push_back(new Snake(Point::randomPoint(150, 150), Point::dir_left));
+	mySnake = snake.back();
 	for (int i = 0; i < 3000; i++){
 		getFood();
 	}
 	points = 0;
-	for (int i = 0; i < H; i++){
-		for (int j = 0; j < W; j++){
-			map[i][j] = CHR_NOTHING;
-			// map2[i][j] = map[i][j];
-		}
-	}
 }
 
 Game::~Game(){
 	deleteMap(map);
-	Object::clear_all();
+	for (unsigned int i = 0; i < acts.size(); i++){
+		delete acts[i];
+	}
+	for (unsigned int i = 0; i < snake.size(); i++){
+		delete snake[i];
+	}
+	// Object::clear_all();
+}
+
+void Game::do_act(ChangeDir* a){
+	int num = a->snake_num;
+	snake[num]->add_new_dir(Point::dirByCode(a->new_dir));
+}
+
+void Game::do_act(NewSnake*){
+
+}
+
+void Game::do_act(NewFood*){
+
+}
+
+void Game::undo_act(ChangeDir* a){
+	int num = a->snake_num;
+	snake[num]->add_new_dir(Point::dirByCode(a->last_dir));
+}
+
+void Game::undo_act(NewSnake*){
+
+}
+
+void Game::undo_act(NewFood*){
+
 }
 
 int Game::wait_key(){
@@ -72,17 +124,29 @@ int Game::wait_key(){
 		default:
 			return -1;
 	}
-	if (snake.head_dir() != new_dir && -snake.head_dir() != new_dir){
-		snake.add_new_dir(new_dir);
+	if (mySnake->head_dir() != new_dir && -mySnake->head_dir() != new_dir){
+		mySnake->add_new_dir(new_dir);
 	}
 	return k;
+}
+
+
+void Game::make_map(int _H, int _W){
+	H = _H;
+	W = _W;
+	map = getMap(W, H);
+	for (int i = 0; i < H; i++){
+		for (int j = 0; j < W; j++){
+			map[i][j] = CHR_NOTHING;
+		}
+	}
 }
 
 PObject Game::getFood(){
 	int k = 0;
 	int f = 0;
 	while (k < 100){
-		Point t = Point::randomPoint(100, 100);
+		Point t = Point::randomPoint(150, 150);
 		for (unsigned int i = 0; i < Object::obj.size(); i++){
 			if (Object::obj[i]->get_position() == t){
 				f = 1;
@@ -105,8 +169,8 @@ void write_chr(Point p, char ch){
 void Game::redraw(){
 	clear();
 	move(1, 1);
-	Point s = snake.head_coord();
-	printw("Your points: %d (%d, %d)", snake.get_points(), s.x, s.y);
+	Point s = mySnake->head_coord();
+	printw("Your points: %d (%d, %d)", mySnake->get_points(), s.x, s.y);
 	for (int i = 0; i < H; i++){
 		for (int j = 0; j < W; j++){
 			map[i][j] = CHR_NOTHING;
@@ -121,7 +185,6 @@ void Game::redraw(){
 		if (zero < t && t < rb){
 			map[t.y][t.x] = (*i)->get_char();
 		}
-
 	}
 	for (int i = 0; i < H; i++){
 		move(i + 3, 3);
@@ -135,9 +198,11 @@ int Game::loop(){
 		while (true){
 			wait_key();
 			getFood();
-			snake.move();
+			for (unsigned int i = 0; i < snake.size(); i++){
+				snake[i]->move();
+			}
 			Object::clear_dead();
-			if (!snake.is_alive()){
+			if (!mySnake->is_alive()){
 				throw finishGame();
 			}
 			redraw();
@@ -147,7 +212,7 @@ int Game::loop(){
 	catch(finishGame e){
 		if (e()){
 			clear();
-			return snake.get_points();
+			return mySnake->get_points();
 		}
 		else{
 			return loop();
