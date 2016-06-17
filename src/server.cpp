@@ -7,25 +7,25 @@ using namespace myGame;
 
 io_service Talker::service;
 vector<Talker::PTalker> Talker::talkers;
-vector<Messege> Talker::messeges;
+// vector<Messege> Talker::messeges;
 mutex Talker::talkers_lock;
-mutex Talker::messeges_lock;
-long long Talker::max_number = 0;
+// mutex Talker::messeges_lock;
+// long long Talker::max_number = 0;
 Talker::endpoint Talker::ep(Talker::tcp::v4(), 18008);
 
-int Client::OKEY = 1;
-int Client::SNAKE_GAME = 16;
-int Client::GET_SNAKES = 3325;
-int Client::GET_FOOD = 15234;
-int Client::GET_MY_SNAKE_NUMBER = 11221;
-int Client::END_MESSEGE = -1;
-int Client::NEXT = 2;
-int Client::START_CHANGES = 1928;
-int Client::NEW_FOOD = 12422;
-int Client::NEW_CLIENT = 2212;
-int Client::CLEAR_DEAD = 666;
-int Client::CHANGE_DIR = 1122;
-int Client::GET_CURRENT_TIME = 1122;
+int OKEY = 1;
+int SNAKE_GAME = 16;
+int GET_SNAKES = 3325;
+int GET_FOOD = 15234;
+int GET_MY_SNAKE_NUMBER = 11221;
+int END_MESSEGE = -1;
+int NEXT = 2;
+int START_CHANGES = 1928;
+int NEW_FOOD = 12422;
+int NEW_CLIENT = 2212;
+int CLEAR_DEAD = 666;
+int CHANGE_DIR = 1122;
+int GET_CURRENT_TIME = 1122;
 
 Talker::~Talker(){
     m_socket.shutdown(socket::shutdown_receive);
@@ -41,63 +41,63 @@ void Talker::close_all(){
 void Talker::accept_all(){
     acceptor acc(service, ep);
     while (true){
-        PTalker t = new Talker;
-        acc.accept(t->m_socket);
-        talkers_lock.lock();
-        out_lock.lock();
-        cout << "new user connected" << endl;
-        out_lock.unlock();
-        talkers.push_back(t);
-        talkers_lock.unlock();
-        t->ready = true;
+        // PTalker t = new Talker;
+        // acc.accept(t->m_socket);
+        // talkers_lock.lock();
+        // out_lock.lock();
+        // cout << "new user connected" << endl;
+        // out_lock.unlock();
+        // talkers.push_back(t);
+        // talkers_lock.unlock();
+        // t->ready = true;
     }
 }
 
 void Talker::sender(Talker::PTalker t){
     while (!t->ready){}
-    while (t->m_socket.is_open()){
-        messeges_lock.lock();
-        for (std::vector<Messege>::iterator i = messeges.begin();
-        i != messeges.end(); i++){
-            if (i->number <= t->last_messege){
-                continue;
-            }
-            t->m_socket.write_some(buffer(i->text.c_str(), i->text.size()));
-            t->last_messege = i->number;
-        }
-        messeges_lock.unlock();
-    }
+    // while (t->m_socket.is_open()){
+    //     messeges_lock.lock();
+    //     for (std::vector<Messege>::iterator i = messeges.begin();
+    //     i != messeges.end(); i++){
+    //         if (i->number <= t->last_messege){
+    //             continue;
+    //         }
+    //         t->m_socket.write_some(buffer(i->text.c_str(), i->text.size()));
+    //         t->last_messege = i->number;
+    //     }
+    //     messeges_lock.unlock();
+    // }
 }
 
 void Talker::reader(PTalker t){
     while (!t->ready){}
-    while (t->m_socket.is_open()){
-        if (t->m_socket.available()<=0){
-            continue;
-        }
-        out_lock.lock();
-        cout << "new messege" << endl;
-        string text;
-        while (t->m_socket.available()){
-            char buf[1024];
-            t->m_socket.read_some(buffer(buf, 1024));
-            text = string(buf);
-        }
-        messeges_lock.lock();
-        cout << text << endl;
-        messeges.push_back(Messege(text, max_number + 1));
-        max_number++;
-        cout << "done" << endl;
-        messeges_lock.unlock();
-        out_lock.unlock();
-
-    }
+    // while (t->m_socket.is_open()){
+    //     if (t->m_socket.available()<=0){
+    //         continue;
+    //     }
+    //     out_lock.lock();
+    //     cout << "new messege" << endl;
+    //     string text;
+    //     while (t->m_socket.available()){
+    //         char buf[1024];
+    //         t->m_socket.read_some(buffer(buf, 1024));
+    //         text = string(buf);
+    //     }
+    //     messeges_lock.lock();
+    //     cout << text << endl;
+    //     messeges.push_back(Messege(text, max_number + 1));
+    //     max_number++;
+    //     cout << "done" << endl;
+    //     messeges_lock.unlock();
+    //     out_lock.unlock();
+    //
+    // }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //Client
 
-Client::Client(int height, int width): tick_length(1000), m_socket(Talker::service){
+Client::Client(int height, int width): m_socket(Talker::service){
     make_map(height, width);
     m_socket.connect(Talker::ep);
     char buf[1024];
@@ -165,24 +165,55 @@ void Client::read_dir(){
 void Client::reader(Client* c){
     Talker::socket& sock = c->m_socket;
     char buf[1024];
-    int* ibuf = (int*)buf;
-    sock.read_some(buffer(ibuf, 1024));
-    c->object_lock.lock();
-    if (*ibuf == NEW_FOOD){
-        c->read_food();
+    while (true){
+        int* ibuf = (int*)buf;
+        sock.read_some(buffer(ibuf, 1024));
+        c->object_lock.lock();
+        if (*ibuf == NEW_FOOD){
+            c->read_food();
+        }
+        if (*ibuf == NEW_CLIENT){
+            c->read_snake();
+        }
+        if (*ibuf == CHANGE_DIR){
+            c->read_dir();
+        }
+        c->object_lock.unlock();
     }
-    if (*ibuf == NEW_CLIENT){
-        c->read_snake();
-    }
-    if (*ibuf == CHANGE_DIR){
-        c->read_dir();
-    }
-    c->object_lock.unlock();
 }
 
 void Client::writer(Client* c){
     Talker::socket& sock = c->m_socket;
-
+    while (true){
+        if (next_ping <= Clock::now()){
+            this_thread::sleep_until(next_ping);
+        }
+        c->object_lock.lock();
+        out_lock.lock();
+        Point new_dir = Point();
+        int k = getch();
+        if (k == 'a' || k == 'A'){
+            new_dir = Point::dir_left;
+        }
+        if (k == 'w' || k == 'W'){
+            new_dir = Point::dir_top;
+        }
+        if (k == 'd' || k == 'D'){
+            new_dir = Point::dir_right;
+        }
+        if (k == 's' || k == 'S'){
+            new_dir = Point::dir_bottom;
+        }
+        if (new_dir == Point()){
+            continue;
+        }
+        c->mySnake->add_new_dir(new_dir);
+        sock.write_some(buffer(&CHANGE_DIR, sizeof(int)));
+        int xy[] = {new_dir.x, new_dir.y};
+        sock.write_some(buffer(xy, 2*sizeof(int)));
+        out_lock.unlock();
+        c->object_lock.unlock();
+    }
 }
 
 void Client::make_step(){
